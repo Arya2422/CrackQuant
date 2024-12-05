@@ -1,27 +1,52 @@
-import  { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChevronDown, ChevronUp, Play, Square, RotateCw } from 'lucide-react';
 
-const DiceProblemSolution = () => {
-  const [showSolution, setShowSolution] = useState(false);
-  const [frequencies, setFrequencies] = useState({});
-  const [averageRolls, setAverageRolls] = useState(0);
-  const [totalSimulations, setTotalSimulations] = useState(0);
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [simulationCount, setSimulationCount] = useState(1000);
+// Interfaces for type safety
+interface Step {
+  stepNumber: string;
+  title: string;
+  content: string;
+  formula: string;
+  bulletPoints: string[];
+  dieExample: number;
+}
+
+interface FrequencyData {
+  [key: number]: number;
+}
+
+interface BarChartDataPoint {
+  rolls: number;
+  frequency: number;
+}
+
+interface DieDisplayProps {
+  value: number;
+}
+
+const DiceProblemSolution: React.FC = () => {
+  const [showSolution, setShowSolution] = useState<boolean>(false);
+  const [frequencies, setFrequencies] = useState<FrequencyData>({});
+  const [averageRolls, setAverageRolls] = useState<number>(0);
+  const [totalSimulations, setTotalSimulations] = useState<number>(0);
+  const [isSimulating, setIsSimulating] = useState<boolean>(false);
+  const [simulationCount, setSimulationCount] = useState<number>(1000);
 
   useEffect(() => {
-    let intervalId;
+    let intervalId: NodeJS.Timeout | null = null;
     if (isSimulating) {
       intervalId = setInterval(() => {
         simulateDiceRolls(simulationCount);
       }, 1000);
     }
-    return () => clearInterval(intervalId);
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
   }, [isSimulating, simulationCount]);
 
-  const simulateDiceRolls = (numSimulations) => {
-    const newFrequencies = {...frequencies};
+  const simulateDiceRolls = (numSimulations: number): void => {
+    const newFrequencies: FrequencyData = {...frequencies};
     
     for (let i = 0; i < numSimulations; i++) {
       let rollCount = 0;
@@ -44,7 +69,7 @@ const DiceProblemSolution = () => {
     setAverageRolls(newAverageRolls);
   };
 
-  const steps = [
+  const steps: Step[] = [
     {
       stepNumber: "Step 1",
       title: "Understanding the Problem",
@@ -99,7 +124,7 @@ const DiceProblemSolution = () => {
     }
   ];
 
-  const DieDisplay = ({ value }) => (
+  const DieDisplay: React.FC<DieDisplayProps> = ({ value }) => (
     <div className="w-12 h-12 flex items-center justify-center rounded-lg border-2 bg-gray-100 border-gray-300 transition-all duration-200 transform hover:scale-110">
       <div className="grid grid-cols-3 grid-rows-3 gap-1 p-1">
         {[...Array(value)].map((_, i) => (
@@ -111,7 +136,7 @@ const DiceProblemSolution = () => {
 
   return (
     <div className="max-w-4xl mx-auto p-6 space-y-6">
-    <div className="bg-white rounded-lg shadow-md p-6 flex items-center justify-between">
+      <div className="bg-white rounded-lg shadow-md p-6 flex items-center justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
             <h2 className="text-xl font-bold">Expected Number of Rolls Until 6</h2>
@@ -129,14 +154,13 @@ const DiceProblemSolution = () => {
           </div>
         </div>
         <div>
-        <img
-      src="https://www.crackquant.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fcoupon-collectors-problem-2.ad36801c.jpg&w=1920&q=75" // Replace with the actual image URL
-      alt="Die illustration"
-      className="w-24 h-24"
-    />
+          <img
+            src="https://www.crackquant.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Fcoupon-collectors-problem-2.ad36801c.jpg&w=1920&q=75"
+            alt="Die illustration"
+            className="w-24 h-24"
+          />
         </div>
       </div>
-
 
       <button 
         className="w-full bg-blue-500 text-white py-3 px-6 rounded-lg flex items-center justify-center gap-2 hover:bg-blue-600 transition-colors"
@@ -148,7 +172,6 @@ const DiceProblemSolution = () => {
 
       {showSolution && (
         <div className="bg-white rounded-lg shadow-md p-6 space-y-6">
-          
           <div>
             {steps.map((step, index) => (
               <div key={index} className="mb-6 last:mb-0">
@@ -173,10 +196,9 @@ const DiceProblemSolution = () => {
               </div>
             ))}
           </div>
-
-       
+          
           <div>
-            <h2 className="text-xl font-bold mb-4"> Simulation for the Roll of Die</h2>
+            <h2 className="text-xl font-bold mb-4">Simulation for the Roll of Die</h2>
             <div className="flex gap-4 mb-4 items-center">
               <button
                 className={`flex items-center gap-2 py-2 px-4 rounded ${
@@ -225,7 +247,7 @@ const DiceProblemSolution = () => {
                 <BarChart 
                   data={Object.entries(frequencies).map(([rolls, freq]) => ({
                     rolls: Number(rolls),
-                    frequency: freq
+                    frequency: freq as number
                   })).sort((a, b) => a.rolls - b.rolls)}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
@@ -244,15 +266,3 @@ const DiceProblemSolution = () => {
 };
 
 export default DiceProblemSolution;
-
-
-
-
-
-
-
-
-
-
-
-
